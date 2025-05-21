@@ -92,7 +92,7 @@ export async function createCourseSheet(
         temp_row.filename = c.data.assetFilename;
       }
       if (c.type.includes("IMAGE")) {
-        if("url" in c.data.assets) {
+        if("assets" in c.data && "url" in c.data.assets) {
           temp_row.filename = c.data.assets.url
             .split("___")
             .pop()
