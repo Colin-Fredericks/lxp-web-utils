@@ -345,10 +345,10 @@ async function setSectionGrain(
   for (let act of activities) {
     try {
       delete act.sc_position;
-    } catch (e) {}
+    } catch (e) { }
     try {
       delete act.section_position;
-    } catch (e) {}
+    } catch (e) { }
   }
 
   let all_element_parents = elements.map((e) => e.activity_id);
