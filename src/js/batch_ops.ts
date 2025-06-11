@@ -2,7 +2,7 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { updateStatus } from "./index";
-import { CourseObject, getCoursewareInOrder } from "./course_sheet";
+import { CourseObject, getCoursewareInOrder, getCoursewareName } from "./course_sheet";
 import { bottom } from "@popperjs/core";
 
 // Doing this as an array of arrays to allow multiple items at the same level.
@@ -604,8 +604,14 @@ export async function cleanCourse(
   // I tried to be picky and careful about it and it didn't work,
   // so now I'm just going to throw out the course history during the cleaning process.
   // If it's detached (i.e. not in the course), vaporize it.
-  activities = activities.filter((a) => !a.detached);
-  elements = elements.filter((e) => !e.detached);
+  activities = activities.filter((a) => !a.detached && !a.deleted_at);
+  elements = elements.filter((e) => !e.detached && !e.deleted_at);
+
+  let all_activity_ids = activities.map((a) => a.id);
+  let all_element_ids = elements.map((e) => e.id);
+  // Remove any activities that don't have a parent.
+  elements = elements.filter((e) => all_activity_ids.includes(e.activity_id));
+
   // If it's an empty bottom-level container or section, vaporize it.
   let bottom_levels = activity_hierarchy.slice(-1)[0];
   let bottom_level_kids_shown = activities
@@ -621,8 +627,9 @@ export async function cleanCourse(
   let childless_activities = bottom_level_kids_shown.filter(function (a) {
     return a.kids.length === 0;
   });
+  let childless_activities_ids = childless_activities.map((a) => a.id);
   activities = activities.filter(function (a) {
-    return !childless_activities.map((a) => a.id).includes(a.id);
+    return !childless_activities_ids.includes(a.id);
   });
 
   // Make a list of childless sections and remove them.
@@ -647,6 +654,74 @@ export async function cleanCourse(
   let activity_ids = activities.map((a) => a.id);
   elements = elements.filter(function (e) {
     return activity_ids.includes(e.activity_id);
+  });
+
+  // Remove any elements that are linked to elements that don't exist.
+  elements = elements.filter((e) => {
+    if (!e.refs) {
+      return true; // No refs, so keep it.
+    }
+    if (!e.refs.linked) {
+      return true; // No links, so keep it.
+    }
+    for (let linked_element of e.refs.linked) {
+      if (!all_element_ids.includes(linked_element.id)) {
+        // If the linked element doesn't exist, replace the link with a placeholder.
+
+        let datetime = new Date();
+        let placeholder = {
+          "id": e["id"],
+          "repository_id": e["repository_id"],
+          "activity_id": e["activity_id"],
+          "uid": makeUUID(),
+          "type": "HLXP_HTML",
+          "position": e["position"],
+          "content_id": makeUUID(),
+          "content_signature": "deadbeef",
+          "data": {
+            "title": getCoursewareName(e),
+            "width": 12,
+            "content": "<p><strong>Placeholder:</strong> This was a "
+              + e["type"]
+              + " pointing at an element that was deleted.</p>",
+            "description": "Replaced by Colin's LXP cleaning script",
+          },
+          "refs": {},
+          "linked": false,
+          "detached": false,
+          "created_at": datetime.toISOString(),
+          "updated_at": datetime.toISOString(),
+          "deleted_at": null,
+          "meta": {},
+        }
+
+        // Add the placeholder.
+        elements.push(placeholder);
+        console.debug(
+          "Removed linked element " + linked_element.id + " from " + e.id + " and replaced with placeholder."
+        );
+        return false; // Don't keep the original element.
+      }
+    }
+    return true;
+  });
+
+  // If there are any elements that are output_only and detached, we need to strip them out.
+  // This is because the LXP doesn't like them. Hopefully will be fixed soon.
+  elements = elements.filter((e) => {
+    if (!e.data) {
+      return true; // No data, so keep it.
+    }
+    if (!e.data || !e.data.inputOutputType) {
+      return true; // No inputOutputType, so keep it.
+    }
+    if (e.data.inputOutputType === "OUTPUT_ONLY" && e.detached) {
+      console.debug(
+        "Removing output-only element " + e.id + " because it is detached."
+      );
+      return false;
+    }
+    return true;
   });
 
   // Write the cleaned-up data back to the json_files.
