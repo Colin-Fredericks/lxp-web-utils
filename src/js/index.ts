@@ -68,6 +68,7 @@ const human_readable_options: { [key: string]: string } = {
   num_attempts: "Number of attempts",
   pass_percent: "Passing percentage",
   show_answers: "Show answers",
+  show_feedback: "Show feedback",
   spreadsheet: "Include course spreadsheet",
   test: "Testing only",
 };
@@ -121,10 +122,16 @@ const human_readable_details: { [key: string]: object } = {
     no_change: "No change.",
   },
   show_answers: {
-    show_when_submitted: "Showing answers on submission.",
-    show_after_attempts: "Showing answers after all attempts.",
-    show_never: "Never showing answers.",
-    show_no_change: "No change.",
+    answers_when_submitted: "Showing answers on submission.",
+    answers_after_attempts: "Showing answers after all attempts.",
+    answers_never: "Never showing answers.",
+    answers_no_change: "No change.",
+  },
+  show_feedback: {
+    feedback_when_submitted: "Showing answers on submission.",
+    feedback_after_attempts: "Showing answers after all attempts.",
+    feedback_never: "Never showing answers.",
+    feedback_no_change: "No change.",
   },
   spreadsheet: {
     true: "Yes.",
@@ -272,7 +279,8 @@ function getInputFile(event: Event): File {
  *  required_optional: "require" | "optional" | "no_change",\
  *  scrubbing: "disable" | "enable" | "no_change",\
  *  section_scope: "section_per_te" | "section_per_page" | "no_change",\
- *  show_answers: "show_when_submitted" | "show_after_attempts" | "show_never" | "no_change",\
+ *  show_answers: "answers_when_submitted" | "answers_after_attempts" | "answers_never" | "answers_no_change",\
+ *  show_feedback: "feedback_when_submitted" | "feedback_after_attempts" | "feedback_never" | "feedback_no_change",\
  *  spreadsheet: boolean (are we making a spreadsheet) \
  *  video_credits: boolean (are we moving post-video Expand containers) \
  *  video_intro: boolean (are we moving pre-video HTML TEs) \
@@ -294,6 +302,7 @@ function getOptions(): {
   scrubbing: string;
   section_scope: string;
   show_answers: string;
+  show_feedback: string;
   spreadsheet: boolean;
   test: boolean;
   video_credits: boolean;
@@ -369,6 +378,12 @@ function getOptions(): {
   ) as HTMLInputElement;
   let show_answers_value = show_answers.value;
 
+  // When should we show the feedback?
+  let show_feedback = document.querySelector(
+    'input[name="show_feedback"]:checked'
+  ) as HTMLInputElement;
+  let show_feedback_value = show_feedback.value;
+
   // Get the clean checkbox
   let clean = document.getElementById("clean") as HTMLInputElement;
   let clean_value = clean.checked;
@@ -394,6 +409,7 @@ function getOptions(): {
     scrubbing_value = "no_change";
     section_scope_value = "no_change";
     show_answers_value = "no_change";
+    show_feedback_value = "feedback_no_change";
     include_course_spreadsheet_value = true;
     video_credits_value = false;
     video_intro_value = false;
@@ -413,6 +429,7 @@ function getOptions(): {
     scrubbing: scrubbing_value,
     section_scope: section_scope_value,
     show_answers: show_answers_value,
+    show_feedback: show_feedback_value,
     spreadsheet: include_course_spreadsheet_value,
     test: just_test_value,
     video_credits: video_credits_value,
@@ -508,12 +525,23 @@ function updateOptionSummary(): void {
     qset_options += "<span class='changed-setting'>" + String(options.num_attempts) + "</span>";
   }
 
-  qset_options += ", Show answers: ";
-  if (options.show_answers === "show_when_submitted") {
+  qset_options += ", <br>Show answers: ";
+  if (options.show_answers === "answers_when_submitted") {
     qset_options += "<span class='changed-setting'>on submission</span>";
-  } else if (options.show_answers === "show_after_attempts") {
+  } else if (options.show_answers === "answers_after_attempts") {
     qset_options += "<span class='changed-setting'>after all attempts</span>";
-  } else if (options.show_answers === "show_never") {
+  } else if (options.show_answers === "answers_never") {
+    qset_options += "<span class='changed-setting'>never</span>";
+  } else {
+    qset_options += "no change";
+  }
+
+  qset_options += ", Show feedback: ";
+  if (options.show_feedback === "feedback_when_submitted") {
+    qset_options += "<span class='changed-setting'>on submission</span>";
+  } else if (options.show_feedback === "feedback_after_attempts") {
+    qset_options += "<span class='changed-setting'>after all attempts</span>";
+  } else if (options.show_feedback === "feedback_never") {
     qset_options += "<span class='changed-setting'>never</span>";
   } else {
     qset_options += "no change";
@@ -919,7 +947,7 @@ async function testFile(): Promise<void> {
 
   // Re-gzip the file
   let tarball_uint8 = new_tarball.toUint8Array();
-  let gzip_blob = new Blob([gzip(tarball_uint8)], {
+  let gzip_blob = new Blob([gzip(tarball_uint8) as BlobPart], {
     type: "application/gzip",
   });
 
@@ -1015,7 +1043,7 @@ async function writeTarFile(
   // Re-zip the file
   await updateStatus("Writing file");
   let tarball_uint8 = new_tarball.toUint8Array();
-  let gzip_blob = new Blob([gzip(tarball_uint8)], {
+  let gzip_blob = new Blob([gzip(tarball_uint8) as BlobPart], {
     type: "application/gzip",
   });
   return gzip_blob;

@@ -79,6 +79,7 @@ export async function processQuestionSets(
     pass_percent: number;
     num_attempts: number;
     show_answers: string;
+    show_feedback: string;
     qset_display: string;
   }
 ): Promise<{ name: string; data: any[] }[]> {
@@ -88,19 +89,36 @@ export async function processQuestionSets(
   );
 
   // When do we show the answers?
-  if (options.show_answers === "show_when_submitted") {
+  if (options.show_answers === "answers_when_submitted") {
     question_sets.forEach(function (qset, i) {
       qset.data.displayCorrectAnswers = "onSubmit";
     });
   }
-  if (options.show_answers === "show_after_attempts") {
+  if (options.show_answers === "answers_after_attempts") {
     question_sets.forEach(function (qset, i) {
       qset.data.displayCorrectAnswers = "onAllowExhaust";
     });
   }
-  if (options.show_answers === "show_never") {
+  if (options.show_answers === "answers_never") {
     question_sets.forEach(function (qset, i) {
       qset.data.displayCorrectAnswers = "never";
+    });
+  }
+
+  // When do we show the feedback?
+  if (options.show_feedback === "feedback_when_submitted") {
+    question_sets.forEach(function (qset, i) {
+      qset.data.displayFeedback = "onSubmit";
+    });
+  }
+  if (options.show_feedback === "feedback_after_attempts") {
+    question_sets.forEach(function (qset, i) {
+      qset.data.displayFeedback = "onAllowExhaust";
+    });
+  }
+  if (options.show_feedback === "feedback_never") {
+    question_sets.forEach(function (qset, i) {
+      qset.data.displayFeedback = "never";
     });
   }
 
