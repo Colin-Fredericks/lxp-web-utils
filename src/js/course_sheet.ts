@@ -92,13 +92,15 @@ export async function createCourseSheet(
         temp_row.filename = c.data.assetFilename;
       }
       if (c.type.includes("IMAGE")) {
-        if("url" in c.data.assets) {
-          temp_row.filename = c.data.assets.url
-            .split("___")
-            .pop()
-            .split("/")
-            .pop()
+        if (typeof c.data.assets !== "undefined") {
+          if ("url" in c.data.assets) {
+            temp_row.filename = c.data.assets.url
+              .split("___")
+              .pop()
+              .split("/")
+              .pop()
           }
+        }
       }
     }
 
@@ -217,7 +219,7 @@ function recursiveDig(
  * @param courseware A courseware object
  * @returns Something that's our best guess for the name of the courseware item.
  */
-function getCoursewareName(courseware: CourseObject): string {
+export function getCoursewareName(courseware: CourseObject): string {
   if (courseware.display_name) {
     if (courseware.display_name === "") {
       return "Nameless " + courseware.type + " " + courseware.id;
@@ -294,12 +296,15 @@ function getContentSample(te: CourseObject): string {
     }
   } else if (te.type.includes("PDF")) {
     te_content_sample = "PDF - no title given";
-    if ("url" in te.data.assets) {
-      // Normally a long random string, ___, and the filename.
-      if (te.data.assets.url != "") {
-        te_content_sample = "PDF: " + te.data.assets.url.split("___").splice(1,).join();
-        if (te_content_sample === "") {
-          te_content_sample = te.data.assets.url;
+    console.debug(te);
+    if (typeof te.data.assets !== "undefined") {
+      if ("url" in te.data.assets) {
+        // Normally a long random string, ___, and the filename.
+        if (te.data.assets.url != "") {
+          te_content_sample = "PDF: " + te.data.assets.url.split("___").splice(1,).join();
+          if (te_content_sample === "") {
+            te_content_sample = te.data.assets.url;
+          }
         }
       }
     }
