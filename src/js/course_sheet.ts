@@ -33,6 +33,7 @@ export async function createCourseSheet(
     te_name: "",
     duration: "(not a video)",
     filename: "n/a",
+    input_output: "n/a",
     te_content_sample: "",
   };
 
@@ -86,6 +87,7 @@ export async function createCourseSheet(
       // If it doesn't have a parent_id, it's an element (a TE).
       temp_row.te_type = c.type;
       temp_row.te_name = name;
+      temp_row.te_input_output = getInputOutput(c);
       temp_row.te_content_sample = getContentSample(c);
       if (c.type.includes("VIDEO")) {
         temp_row.duration = secToHMS(c.data.duration);
@@ -323,6 +325,62 @@ function getContentSample(te: CourseObject): string {
   }
 
   return te_content_sample;
+}
+
+/**
+ * Returns information about potentially linked TEs,
+ * such as Reflection, Poll, or Combined Results.
+ * @param te A courseware object, specifically a Teaching Element
+ * @returns A string
+ */
+function getInputOutput(te: CourseObject): string {
+  // Currently all linkable TEs have an inputOutputType.
+  let info = "n/a";
+  if (typeof te.data.inputOutputType === "undefined") {
+    return info;
+  }
+
+  if (
+    ["HLXP_REFLECTION", "HLXP_POLL", "LXP_FREE_ENTRY_TABLE", "LXP_LIST", "LXP_WORD_CLOUD"].includes(
+      te.type
+    )
+  ) {
+    info = ioInfo(te);
+    if (info == "output") {
+      info += ", input on page ";
+      info += te.refs.linked[0].outlineId;
+    }
+  } else if (te.type === "LXP_FILTERED_PRP") {
+    info = ioInfo(te);
+    let inputs = [];
+    if (typeof te.refs.tagElement !== "undefined") {
+      inputs.push(te.refs.tagElement[0].outlineId);
+    }
+    if (typeof te.refs.entryElement !== "undefined") {
+      inputs.push(te.refs.entryElement[0].outlineId);
+    }
+    if (info == "output") {
+      info += ", inputs on page " + inputs.join(" and ");
+    }
+  } else if (te.type === "LXP_CATEGORIZATION") {
+    // Not sure how this is going to look.
+    // We haven't been given the docs for it as of 6/30/25
+    return ioInfo(te);
+  }
+
+  function ioInfo(te: CourseObject): string {
+    if (te.data.inputOutputType === "OUTPUT_ONLY") {
+      return "output";
+    } else if (te.data.inputOutputType === "INPUT_OUTPUT") {
+      return "input/output";
+    } else if (te.data.inputOutputType === "INPUT_ONLY") {
+      return "input";
+    } else {
+      return "error";
+    }
+  }
+
+  return info;
 }
 
 /**
