@@ -94,11 +94,7 @@ export async function createCourseSheet(
       if (c.type.includes("IMAGE")) {
         if (typeof c.data.assets !== "undefined") {
           if ("url" in c.data.assets) {
-            temp_row.filename = c.data.assets.url
-              .split("___")
-              .pop()
-              .split("/")
-              .pop()
+            temp_row.filename = c.data.assets.url.split("___").pop().split("/").pop();
           }
         }
       }
@@ -153,9 +149,7 @@ export function getCoursewareInOrder(
       top_level_folders.push(a);
     }
   }
-  let sorted_top_level_folders = top_level_folders.sort(
-    (a, b) => a.position - b.position
-  );
+  let sorted_top_level_folders = top_level_folders.sort((a, b) => a.position - b.position);
   // console.debug(sorted_top_level_folders);
   // Dive down into the course to get bottom-level TEs.
   // TODO: I think I might be assuming that there are TEs in every folder. Check on that.
@@ -181,11 +175,7 @@ function recursiveDig(
   all_courseware.push(container);
 
   // If the activitity is a bottom-level folder, send us to the TE sorting function.
-  let leaf_containers = [
-    "INVISIBLE_CONTAINER",
-    "EXPAND_CONTAINER",
-    "CEK_QUESTION_SET",
-  ];
+  let leaf_containers = ["INVISIBLE_CONTAINER", "EXPAND_CONTAINER", "CEK_QUESTION_SET"];
   if (leaf_containers.includes(container["type"])) {
     let result = putTesInOrder(elements, container, count);
     all_courseware.push(...result[0]);
@@ -206,14 +196,7 @@ function recursiveDig(
   for (let child of attached_sorted_children) {
     // console.log(padding + getCoursewareName(child));
     count++;
-    let result = recursiveDig(
-      activities,
-      elements,
-      child,
-      all_courseware,
-      count,
-      padding + "  "
-    );
+    let result = recursiveDig(activities, elements, child, all_courseware, count, padding + "  ");
     all_courseware = result[0];
     count = result[1];
   }
@@ -309,7 +292,7 @@ function getContentSample(te: CourseObject): string {
       if ("url" in te.data.assets) {
         // Normally a long random string, ___, and the filename.
         if (te.data.assets.url != "") {
-          te_content_sample = "PDF: " + te.data.assets.url.split("___").splice(1,).join();
+          te_content_sample = "PDF: " + te.data.assets.url.split("___").splice(1).join();
           if (te_content_sample === "") {
             te_content_sample = te.data.assets.url;
           }
@@ -354,12 +337,8 @@ function putTesInOrder(
   container: CourseObject,
   count: number
 ): [CourseObject[], number] {
-  let elements_in_container = elements.filter(
-    (e) => e["activity_id"] == container["id"]
-  );
-  let te_list = elements_in_container.sort(
-    (a, b) => a["position"] - b["position"]
-  );
+  let elements_in_container = elements.filter((e) => e["activity_id"] == container["id"]);
+  let te_list = elements_in_container.sort((a, b) => a["position"] - b["position"]);
   count += te_list.length;
   return [te_list, count];
 }
@@ -372,9 +351,7 @@ export function getCourseName(repo_data: object): string {
     temp_name = temp_name.replace(/[^\x20-\x7E]/g, "_");
     // Replace spaces, slashes, and other characters that don't work well in filenames.
     // Currently: * / \ : " ' < > | ? ^ % ! @ # $ & + = ` ~ [ ] { } ( ) ; , and whitespace
-    temp_name = temp_name
-      .replace(/[\/\\:"'<>|?*^%!@#$&+=`~\[\]{}();,\s]/g, "_")
-      .trim();
+    temp_name = temp_name.replace(/[\/\\:"'<>|?*^%!@#$&+=`~\[\]{}();,\s]/g, "_").trim();
     return temp_name;
   } else {
     return "processed_course";
