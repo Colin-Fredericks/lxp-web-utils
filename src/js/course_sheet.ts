@@ -145,7 +145,11 @@ export function getCoursewareInOrder(
   let top_level_folders: CourseObject[] = [];
   let courseware_in_order: CourseObject[] = [];
   for (let a of activities) {
-    if (a.parent_id === null && a.deleted_at === null) {
+    if (
+      a.parent_id === null && // Top-level containers have no parent_id
+      a.deleted_at === null &&
+      a.detached === false
+    ) {
       top_level_folders.push(a);
     }
   }
@@ -194,8 +198,12 @@ function recursiveDig(
   let children = activities.filter((a) => a["parent_id"] == container["id"]);
   // Sort the children by position.
   let sorted_children = children.sort((a, b) => a["position"] - b["position"]);
+  // Remove anything that's deleted or detached.
+  let attached_sorted_children = sorted_children.filter(
+    (c) => c.deleted_at === null && c.detached === false
+  );
 
-  for (let child of sorted_children) {
+  for (let child of attached_sorted_children) {
     // console.log(padding + getCoursewareName(child));
     count++;
     let result = recursiveDig(
