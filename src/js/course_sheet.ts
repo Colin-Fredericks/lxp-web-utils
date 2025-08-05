@@ -276,7 +276,12 @@ export function getCoursewareName(courseware: CourseObject): string {
 function getContentSample(te: CourseObject): string {
   let te_content_sample = "";
   if (te.type.includes("HTML")) {
-    te_content_sample = te.data.content;
+    if(te.type === "LXP_ADV_HTML") {
+      te_content_sample = te.data.html.codeContent;
+    }
+    else{
+      te_content_sample = te.data.content;
+    }
   } else if (te.type.includes("REFLECTION") || te.type.includes("POLL")) {
     te_content_sample = te.data.prompt.content;
   } else if (te.type.includes("QUESTION") && !te.type.includes("SET")) {
