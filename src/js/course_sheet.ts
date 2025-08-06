@@ -319,6 +319,14 @@ function getContentSample(te: CourseObject): string {
   } else {
     te_content_sample = "(no sample available)";
   }
+
+  // Just in case we set it to undefined or a non-string by accident...
+  if (typeof te_content_sample === "undefined") {
+    te_content_sample = "(no sample available)";
+  } else if (typeof te_content_sample !== "string") {
+    te_content_sample = String(te_content_sample);
+  }
+
   // Don't keep ridiculously long samples.
   if (te_content_sample.length > 100) {
     te_content_sample = te_content_sample.slice(0, 100) + "...";
