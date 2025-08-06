@@ -276,7 +276,12 @@ export function getCoursewareName(courseware: CourseObject): string {
 function getContentSample(te: CourseObject): string {
   let te_content_sample = "";
   if (te.type.includes("HTML")) {
-    te_content_sample = te.data.content;
+    if(te.type === "LXP_ADV_HTML") {
+      te_content_sample = te.data.html.codeContent;
+    }
+    else{
+      te_content_sample = te.data.content;
+    }
   } else if (te.type.includes("REFLECTION") || te.type.includes("POLL")) {
     te_content_sample = te.data.prompt.content;
   } else if (te.type.includes("QUESTION") && !te.type.includes("SET")) {
@@ -320,7 +325,7 @@ function getContentSample(te: CourseObject): string {
     te_content_sample = "(no sample available)";
   }
 
-  // Just in case we set it to undefined or a non-string by accident...
+  // Make sure we didn't set this to undefined or something.
   if (typeof te_content_sample === "undefined") {
     te_content_sample = "(no sample available)";
   } else if (typeof te_content_sample !== "string") {
