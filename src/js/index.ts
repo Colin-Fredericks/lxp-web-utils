@@ -796,7 +796,9 @@ async function processFile(): Promise<void> {
 
   let json_files = await parseJson(tar_content, options);
 
-  let repo_file = json_files.filter((e: any) => e.name === "repository.json");
+  console.log(json_files);
+
+  let repo_file = json_files.filter((e: any) => e.name.endsWith("repository.json"));
   if (repo_file.length === 0) {
     console.error("Could not find repository.json");
     return;
