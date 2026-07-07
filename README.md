@@ -24,7 +24,7 @@ You can make the following changes to a course export. Each bullet point is inde
 * Change the passing percentage and number of attempts for all question sets
 * Clean the course for import back into the LXP. This will eventually be unnecessary, but the LXP currently (03Jan2025) exports some TEs that it cannot import.
 
-The app also provides a spreadsheet showing the structure of the course, including all teaching elements and questions. You can turn that off if you want, or you can request *just* that.
+The app also provides two spreadsheets: one shows the structure of the course, including all teaching elements and questions, and the other shows all links in the course that are *not* inside Credits expandables. You can turn them off if you want, or you can request *just* those.
 
 ### Security
 
