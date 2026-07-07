@@ -1092,6 +1092,7 @@ async function makeDownloadLinks(
   // If we have a course sheet, make a download link for that too,
   // but do a hidden one that's triggered when we click the regular download link.
   if (course_sheet !== "") {
+    console.log("Making course sheet download");
     let sheet_blob = new Blob([course_sheet], { type: "text/csv" });
     let sheet_uri = URL.createObjectURL(sheet_blob);
     let sheet_link = document.createElement("a");
@@ -1105,6 +1106,7 @@ async function makeDownloadLinks(
     });
   }
   if (link_sheet !== "") {
+    console.log("Making link sheet download");
     let link_blob = new Blob([link_sheet], { type: "text/csv" });
     let link_uri = URL.createObjectURL(link_blob);
     let link_link = document.createElement("a");

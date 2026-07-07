@@ -10,6 +10,7 @@ export async function createLinkSheet(
   }[],
   course_sheet: string,
 ): Promise<string> {
+  console.log("Creating link sheet");
 
   let link_array: CourseObject[] = [];
   let link_sheet = "";
@@ -19,7 +20,6 @@ export async function createLinkSheet(
     console.error(err);
     return err;
   }
-
 
   let course_csv = papa.parse(course_sheet, { header: true }).data;
   let csv_array = Array.from(course_csv) as CourseObject[];
@@ -89,7 +89,6 @@ function getElementById(elements: any[], id: string | number): CourseObject | nu
     console.error(err);
     return null;
   }
-
   return element;
 }
 
@@ -142,9 +141,9 @@ function getHTML(te: CourseObject): string {
       te.data.answers.forEach((answer: any) => {
         html += answer.content || "";
       });
-      te.data?.feedback?.forEach((feedback: any) => {
-        html += feedback.content || "";
-      });
+      for (let x in te.data?.feedback) {
+        html += te.data?.feedback[x]?.content || "";
+      }
       html += te.data?.generalFeedback?.content || "";
       break;
     case "HLXP_MULTIPLE_CHOICE_QUESTION":
