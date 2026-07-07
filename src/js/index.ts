@@ -1,6 +1,7 @@
 console.debug("javscript loaded");
 
 import { createCourseSheet, getCourseName } from "./course_sheet";
+import { createLinkSheet } from "./link_sheet";
 import {
   processSections,
   disableVideoScrubbing,
@@ -770,6 +771,7 @@ function updateConfirmationDialog(input_file: File): void {
 async function processFile(): Promise<void> {
   let gzip_blob = new Blob();
   let course_sheet = "";
+  let link_sheet = "";
   let course_name = "processed_course";
 
   console.debug("Processing file");
@@ -851,14 +853,15 @@ async function processFile(): Promise<void> {
     gzip_blob = await writeTarFile(tar_content, json_files);
   }
 
-  // Create the course spreadsheet as a csv.
+  // Create the course spreadsheet and link sheet as CSVs.
   if (options.spreadsheet) {
     course_sheet = await createCourseSheet(json_files);
+    link_sheet = await createLinkSheet(json_files, course_sheet);
   }
 
-  // Make the donwload links
+  // Make the download links
   if (options.download_new_course || options.spreadsheet) {
-    makeDownloadLinks(gzip_blob, working_button, course_sheet, course_name);
+    makeDownloadLinks(gzip_blob, working_button, course_sheet, link_sheet, course_name);
   }
 }
 
@@ -953,7 +956,7 @@ async function testFile(): Promise<void> {
     type: "application/gzip",
   });
 
-  makeDownloadLinks(gzip_blob, working_button, "", "test_course");
+  makeDownloadLinks(gzip_blob, working_button, "", "", "test_course");
 }
 
 /**
@@ -1061,6 +1064,7 @@ async function makeDownloadLinks(
   gzip_blob: Blob,
   working_button: HTMLElement,
   course_sheet: string,
+  link_sheet: string,
   course_name: string
 ): Promise<void> {
   // Hide the "working" spinner
@@ -1098,6 +1102,19 @@ async function makeDownloadLinks(
     document.body.appendChild(sheet_link);
     download_button.addEventListener("click", () => {
       sheet_link.click();
+    });
+  }
+  if (link_sheet !== "") {
+    let link_blob = new Blob([link_sheet], { type: "text/csv" });
+    let link_uri = URL.createObjectURL(link_blob);
+    let link_link = document.createElement("a");
+    link_link.setAttribute("href", link_uri);
+    link_link.id = "link_sheet_download_link";
+    link_link.setAttribute("download", "link_sheet_" + course_name + ".csv");
+    link_link.style.display = "none";
+    document.body.appendChild(link_link);
+    download_button.addEventListener("click", () => {
+      link_link.click();
     });
   }
   await updateStatus("Download");
