@@ -21,14 +21,17 @@ export async function createCourseSheet(
     data: any[];
   }[]
 ): Promise<string> {
+  console.log("Creating course sheet");
+  
   // The flattened course is an array of objects with strings as keys.
   // We'll convert this to a CSV string.
   // Include typescript types.
   let flat_course: CourseObject[] = [];
   let course_csv_array: { [key: string]: string }[] = [];
   let course_csv_string = "";
-  let last_te_name = "";
+  let last_te_name: string = "";
   let row_template: { [key: string]: string } = {
+    te_id: "-1",
     te_type: "",
     te_name: "",
     duration: "(not a video)",
@@ -85,6 +88,7 @@ export async function createCourseSheet(
       }
     } else {
       // If it doesn't have a parent_id, it's an element (a TE).
+      temp_row.te_id = String(c.id);
       temp_row.te_type = c.type;
       temp_row.te_name = name;
       temp_row.te_input_output = getInputOutput(c);
