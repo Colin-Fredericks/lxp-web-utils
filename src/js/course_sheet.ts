@@ -364,17 +364,22 @@ function getInputOutput(te: CourseObject): string {
   ) {
     info = ioInfo(te);
     if (info == "output") {
-      info += ", input on page ";
-      info += te.refs.linked[0].outlineId;
+      if(typeof te.refs?.responseSeed !== "undefined") { // Starting text pulled from previous TE
+        info += ", input on page ";
+        info += te.refs?.responseSeed[0]?.outlineId;
+      } else{ // Shows the output of previous TE but doesn't allow editing
+        info += ", input on page ";
+        info += te.refs?.linked[0]?.outlineId;
+      }
     }
   } else if (te.type === "LXP_FILTERED_PRP") {
     info = ioInfo(te);
     let inputs = [];
-    if (typeof te.refs.tagElement !== "undefined") {
-      inputs.push(te.refs.tagElement[0].outlineId);
+    if (typeof te.refs?.tagElement !== "undefined") {
+      inputs.push(te.refs?.tagElement[0]?.outlineId);
     }
-    if (typeof te.refs.entryElement !== "undefined") {
-      inputs.push(te.refs.entryElement[0].outlineId);
+    if (typeof te.refs?.entryElement !== "undefined") {
+      inputs.push(te.refs?.entryElement[0]?.outlineId);
     }
     if (info == "output") {
       info += ", inputs on page " + inputs.join(" and ");
