@@ -122,7 +122,7 @@ function getHTML(te: CourseObject): string {
     case "LXP_FREE_ENTRY_TABLE":
     case "LXP_LIST":
     case "LXP_RATING_SCALE":
-      html = te.data?.inputData?.prompt || "";
+      html = te.data?.inputData?.prompt?.content || "";
       break;
     case "HLXP_POLL":
       html = te.data?.prompt?.content || "";
