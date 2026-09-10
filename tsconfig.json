@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2019"
   },
   "input": "src",
   "output": "dist"
