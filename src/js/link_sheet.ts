@@ -105,7 +105,7 @@ function getHTML(te: CourseObject): string {
     case "HLXP_HTML":
       html = te.data?.rte?.content || "";
       break;
-    case "LXP_JODIT_HTML":
+    case "JODIT_HTML":
       html = te.data?.content || "";
       break;
     case "LXP_ADV_HTML":
@@ -162,7 +162,7 @@ function getHTML(te: CourseObject): string {
       break;
     default:
       html = "";
-      console.warn(`TE type ${te.type} not recognized. No HTML content extracted.`);
+      console.debug(`TE type ${te.type} not recognized or does not contain HTML content. No HTML content extracted.`);
       break;
   }
   return html;

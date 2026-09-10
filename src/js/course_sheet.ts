@@ -22,7 +22,7 @@ export async function createCourseSheet(
   }[]
 ): Promise<string> {
   console.log("Creating course sheet");
-  
+
   // The flattened course is an array of objects with strings as keys.
   // We'll convert this to a CSV string.
   // Include typescript types.
@@ -280,10 +280,10 @@ export function getCoursewareName(courseware: CourseObject): string {
 function getContentSample(te: CourseObject): string {
   let te_content_sample = "";
   if (te.type.includes("HTML")) {
-    if(te.type === "LXP_ADV_HTML") {
+    if (te.type === "LXP_ADV_HTML") {
       te_content_sample = te.data.html.codeContent;
     }
-    else{
+    else {
       te_content_sample = te.data.content;
     }
   } else if (te.type.includes("REFLECTION") || te.type.includes("POLL")) {
@@ -364,12 +364,14 @@ function getInputOutput(te: CourseObject): string {
   ) {
     info = ioInfo(te);
     if (info == "output") {
-      if(typeof te.refs?.responseSeed !== "undefined") { // Starting text pulled from previous TE
+      if (typeof te.refs?.responseSeed !== "undefined") { // Starting text pulled from previous TE
         info += ", input on page ";
         info += te.refs?.responseSeed[0]?.outlineId;
-      } else{ // Shows the output of previous TE but doesn't allow editing
+      } else if (typeof te.refs?.linked !== "undefined") { // Shows the output of previous TE but doesn't allow editing
         info += ", input on page ";
         info += te.refs?.linked[0]?.outlineId;
+      } else {
+        info += ", input page is undefined";
       }
     }
   } else if (te.type === "LXP_FILTERED_PRP") {
