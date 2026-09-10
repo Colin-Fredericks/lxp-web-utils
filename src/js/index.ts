@@ -1028,7 +1028,12 @@ async function writeTarFile(
         new_tarball.addDirectory(f.fileName);
       } else {
         if (f.fileNamePrefix === "") {
-          new_tarball.addBinaryFile(f.fileName, f.content as Uint8Array);
+          console.log(f);
+          let content = f.content;
+          if(f.content === null) {
+            content = new Uint8Array();
+          }
+          new_tarball.addBinaryFile(f.fileName, content as Uint8Array);
         } else if (f.fileName.startsWith(f.fileNamePrefix)) {
           // Why this slice? Remove the header and...
           // uh... no idea why the 118 works, but it seems to be universal.
